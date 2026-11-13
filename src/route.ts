@@ -1,4 +1,4 @@
-import type { EnemyName } from "./prefab.ts";
+import type { EnemyName } from "./actors.ts";
 
 export type Formation = "line" | "vee" | "column" | "pincer";
 
