@@ -7,7 +7,12 @@ import {
   Player,
   WIDTH,
 } from "./actors.ts";
-import { ShmupBoss, ShmupPowerUp, ShmupPrefabSprite } from "./prefab.ts";
+import {
+  ENEMIES,
+  ShmupBoss,
+  ShmupPowerUp,
+  ShmupPrefabSprite,
+} from "./prefab.ts";
 import type { Hud } from "./hud.ts";
 import type { LaunchOptions } from "./main.ts";
 import { AutoPilot, KeyboardPilot, type Pilot } from "./pilots.ts";
@@ -15,7 +20,7 @@ import { Rng } from "./rng.ts";
 import { loadSounds, play } from "./sounds.ts";
 import { makeTextures, TINTS } from "./textures.ts";
 import { Backdrop } from "./backdrop.ts";
-import { ENEMIES, ROUTE, spawnPoint, type Wave } from "./route.ts";
+import { ROUTE, spawnPoint, type Wave } from "./route.ts";
 
 const TICK_MS = 1000 / 60;
 const START_LIVES = 3;
@@ -315,22 +320,8 @@ export class GameScene extends Phaser.Scene implements Arena {
   }
 
   summon(_kind: string, x: number, y: number): void {
-    this.enemies.push(
-      new ShmupPrefabSprite(
-        this,
-        x,
-        y,
-        "drone",
-        2,
-        100,
-        13,
-        0.015,
-        true,
-        false,
-        x,
-        x < WIDTH / 2 ? 1 : -1,
-      ),
-    );
+    const side = x < WIDTH / 2 ? 1 : -1;
+    this.enemies.push(new ShmupPrefabSprite(this, ENEMIES.drone, x, y, side));
   }
 
   // one tick of gameplay
@@ -414,26 +405,11 @@ export class GameScene extends Phaser.Scene implements Arena {
   }
 
   private spawnWave(wave: Wave, t: number): void {
-    const { hp, score, radius, dropChance, canShoot } = ENEMIES[wave.kind];
+    const kind = ENEMIES[wave.kind];
     for (let i = 0; i < wave.count; i++) {
       const { at, x, y, side } = spawnPoint(wave, i);
       if (t !== at) continue;
-      this.enemies.push(
-        new ShmupPrefabSprite(
-          this,
-          x,
-          y,
-          wave.kind,
-          hp,
-          score,
-          radius,
-          dropChance,
-          canShoot,
-          false,
-          x,
-          side,
-        ),
-      );
+      this.enemies.push(new ShmupPrefabSprite(this, kind, x, y, side));
     }
   }
 
@@ -470,7 +446,7 @@ export class GameScene extends Phaser.Scene implements Arena {
     for (const pickup of this.pickups) {
       if (pickup.active && pickup.touches(this.player)) {
         pickup.setActive(false);
-        this.player.collect(pickup.kind);
+        this.player.collect(pickup.kind.texture);
         play(this, "pickup", 0.6);
         this.burst(pickup.x, pickup.y, 14, TINTS.player);
       }
@@ -479,14 +455,14 @@ export class GameScene extends Phaser.Scene implements Arena {
 
   private destroyEnemy(enemy: ShmupPrefabSprite): void {
     enemy.setActive(false);
-    this.run.score += enemy.score;
+    this.run.score += enemy.kind.score;
     this.run.kills++;
     if (enemy === this.boss) {
       this.defeatBoss(this.boss);
       return;
     }
     this.explode(enemy.x, enemy.y, 1);
-    if (this.rng.chance(enemy.dropChance)) {
+    if (this.rng.chance(enemy.kind.dropChance)) {
       const kind = this.player.power < 3 && this.rng.chance(0.5)
         ? "spread"
         : "shield";

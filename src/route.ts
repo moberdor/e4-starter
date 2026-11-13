@@ -1,25 +1,10 @@
-export type EnemyKind = "drone" | "dart" | "turret" | "lancer";
-
-export interface EnemyStats {
-  hp: number;
-  score: number;
-  radius: number;
-  dropChance: number;
-  canShoot: boolean;
-}
-
-export const ENEMIES: Record<EnemyKind, EnemyStats> = {
-  drone: { hp: 2, score: 100, radius: 13, dropChance: 0.015, canShoot: true },
-  dart: { hp: 1, score: 150, radius: 12, dropChance: 0.015, canShoot: false },
-  turret: { hp: 12, score: 400, radius: 19, dropChance: 0.3, canShoot: true },
-  lancer: { hp: 4, score: 250, radius: 15, dropChance: 0.06, canShoot: true },
-};
+import type { EnemyName } from "./prefab.ts";
 
 export type Formation = "line" | "vee" | "column" | "pincer";
 
 export interface Wave {
   at: number;
-  kind: EnemyKind;
+  kind: EnemyName;
   count: number;
   formation: Formation;
   x?: number;
