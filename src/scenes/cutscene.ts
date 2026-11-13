@@ -5,6 +5,7 @@ import { play } from "../sounds.ts";
 import { TINTS } from "../textures.ts";
 import { Backdrop } from "./backdrop.ts";
 import { fadeTo } from "./fade.ts";
+import type { RunTotals } from "./play.ts";
 
 /** Lines of the closing story and when (seconds) each appears. */
 const STORY: [number, string][] = [
@@ -17,7 +18,7 @@ const CREDITS_AT = 11;
 const RETURN_AT = 18;
 
 export class CutsceneScene extends Phaser.Scene {
-  private run;
+  private run!: RunTotals;
   private afterDemo = false;
   private backdrop!: Backdrop;
   private leaving = false;
@@ -26,7 +27,7 @@ export class CutsceneScene extends Phaser.Scene {
     super("cutscene");
   }
 
-  init(data: { run; afterDemo: boolean }): void {
+  init(data: { run: RunTotals; afterDemo: boolean }): void {
     this.run = data.run;
     this.afterDemo = data.afterDemo;
     this.leaving = false;
